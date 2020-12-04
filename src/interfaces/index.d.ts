@@ -3,7 +3,7 @@ export {};
 
 declare global {
   interface Func extends Function {
-    new (...args: any[]): any;
+    new (...args: any[]): any
   }
 
   namespace Express {

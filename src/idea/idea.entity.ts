@@ -6,32 +6,39 @@ import {
   ManyToOne,
   JoinTable,
   ManyToMany,
-  OneToMany,
-} from 'typeorm';
-import { UserEntity } from '../user/user.entity';
-import { CommentEntity } from '../comment/comment.entity';
+  OneToMany
+} from "typeorm";
+import { UserEntity } from "../user/user.entity";
+import { CommentEntity } from "../comment/comment.entity";
 
 @Entity("idea")
 export class IdeaEntity {
-  @PrimaryGeneratedColumn("uuid") readonly id: string;
+  @PrimaryGeneratedColumn("uuid") readonly id: string
 
-  @CreateDateColumn() readonly created: Date;
+  @CreateDateColumn() readonly created: Date
 
-  @Column("text") idea: string;
+  @Column("text") idea: string
 
-  @Column("text") description: string;
+  @Column("text") description: string
 
-  @ManyToOne(type => UserEntity, author => author.ideas)
-  author: UserEntity;
+  @ManyToOne(
+    () => UserEntity,
+    author => author.ideas,
+  )
+  author: UserEntity
 
-  @ManyToMany(type => UserEntity, { cascade: true })
+  @ManyToMany(() => UserEntity, { cascade: true })
   @JoinTable()
   upvotes: Array<UserEntity>
 
-  @ManyToMany(type => UserEntity, { cascade: true })
+  @ManyToMany(() => UserEntity, { cascade: true })
   @JoinTable()
-  downvotes: Array<UserEntity>;
+  downvotes: Array<UserEntity>
 
-  @OneToMany(type => CommentEntity, comment => comment.idea, { cascade: true })
+  @OneToMany(
+    () => CommentEntity,
+    comment => comment.idea,
+    { cascade: true },
+  )
   comments: Array<CommentEntity>
-};
+}

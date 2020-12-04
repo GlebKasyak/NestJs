@@ -5,8 +5,10 @@ import {
   Column,
   BeforeInsert,
   OneToMany,
-  UpdateDateColumn, ManyToMany, JoinTable,
-} from 'typeorm';
+  UpdateDateColumn,
+  ManyToMany,
+  JoinTable
+} from "typeorm";
 import { hash, compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
@@ -16,51 +18,49 @@ import { IdeaEntity } from "../idea/idea.entity";
 
 @Entity("user")
 export class UserEntity {
-  @PrimaryGeneratedColumn("uuid") readonly id: string;
+  @PrimaryGeneratedColumn("uuid") readonly id: string
 
-  @CreateDateColumn() readonly created: Date;
+  @CreateDateColumn() readonly created: Date
 
-  @UpdateDateColumn() readonly updated: Date;
+  @UpdateDateColumn() readonly updated: Date
 
   @Column({ type: "text", unique: true })
-  username: string;
+  username: string
 
   @Column({ type: "text", select: false })
-  password: string;
+  password: string
 
-  @OneToMany(type => IdeaEntity, idea => idea.author)
-  ideas: Array<IdeaEntity>;
+  @OneToMany(
+    () => IdeaEntity,
+    idea => idea.author,
+  )
+  ideas: Array<IdeaEntity>
 
-  @ManyToMany(type => IdeaEntity, { cascade: true })
+  @ManyToMany(() => IdeaEntity, { cascade: true })
   @JoinTable()
   bookmarks: Array<IdeaEntity>
 
   @BeforeInsert()
   async hashPassword() {
     this.password = await hash(this.password, 10);
-  };
+  }
 
   async comparePassword(attempt: string) {
-    return await compare(attempt, this.password)
-  };
+    return await compare(attempt, this.password);
+  }
 
   toResponseObject(showToken = true) {
     const { id, created, username, token, ideas, bookmarks } = this;
-
     const responseObject: ResponseObjectType = { id, created, username, ideas, bookmarks };
-    if(showToken) {
-      responseObject.token = token
-    };
+
+    if (showToken) {
+      responseObject.token = token;
+    }
 
     return responseObject;
-  };
+  }
 
   private get token() {
-    return sign(
-      { id: this.id },
-      Config.SECRET_KEY,
-      { expiresIn: "7d" }
-      );
-  };
-};
-
+    return sign({ id: this.id }, Config.SECRET_KEY, { expiresIn: "7d" });
+  }
+}

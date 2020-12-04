@@ -1,7 +1,7 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
-import { Request } from 'express';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from "@nestjs/common";
+import { Request } from "express";
+import { Observable } from "rxjs";
+import { tap } from "rxjs/operators";
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -13,7 +13,11 @@ export class LoggingInterceptor implements NestInterceptor {
       .handle()
       .pipe(
         tap(() =>
-          Logger.log(`method: ${ request.method }, url: ${ request.url } - After: ${ Date.now() - now }ms`, context.getClass().name)),
+          Logger.log(
+            `method: ${request.method}, url: ${request.url} - After: ${Date.now() - now}ms`,
+            context.getClass().name,
+          ),
+        ),
       );
   }
 }

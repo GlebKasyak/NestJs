@@ -1,12 +1,11 @@
-import { IsString } from 'class-validator';
+import { IsString } from "class-validator";
 
 export class CommentDTO {
-
   @IsString()
-  comment: string;
-};
+  comment: string
+}
 
 export type CommentType = {
-  comment: string,
+  comment: string
   ideaId: string
-};
+}
