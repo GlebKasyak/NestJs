@@ -32,7 +32,7 @@ export class UserEntity {
 
   @OneToMany(
     () => IdeaEntity,
-    idea => idea.author,
+    idea => idea.author
   )
   ideas: Array<IdeaEntity>;
 

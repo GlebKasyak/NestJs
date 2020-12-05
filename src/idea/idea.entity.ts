@@ -23,7 +23,7 @@ export class IdeaEntity {
 
   @ManyToOne(
     () => UserEntity,
-    author => author.ideas,
+    author => author.ideas
   )
   author: UserEntity;
 
@@ -38,7 +38,7 @@ export class IdeaEntity {
   @OneToMany(
     () => CommentEntity,
     comment => comment.idea,
-    { cascade: true },
+    { cascade: true }
   )
   comments: Array<CommentEntity>;
 }

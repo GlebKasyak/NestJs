@@ -21,7 +21,7 @@ export class HttpErrorFilter extends HttpException {
     Logger.error(
       `method: ${request.method}, path: ${request.url}`,
       JSON.stringify(responseError),
-      "ExceptionFilter",
+      "ExceptionFilter"
     );
 
     response.status(status).json(responseError);

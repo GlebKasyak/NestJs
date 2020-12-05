@@ -25,7 +25,7 @@ export class CommentController {
   showCommentsByIdea(
     @Param("id") ideaId: string,
     @Query("page") page: number,
-    @Query("limit") limit: number,
+    @Query("limit") limit: number
   ) {
     return this.commentService.showByIdea(ideaId, page, limit);
   }
@@ -35,7 +35,7 @@ export class CommentController {
   showCommentsByUser(
     @Param("id") userId: string,
     @Query("page") page: number,
-    @Query("limit") limit: number,
+    @Query("limit") limit: number
   ) {
     return this.commentService.showByUser(userId, page, limit);
   }

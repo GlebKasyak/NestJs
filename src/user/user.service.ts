@@ -8,7 +8,7 @@ import { UserDTO } from "./user.dto";
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
   ) {}
 
   async showAll(page = 1, limit = 5) {

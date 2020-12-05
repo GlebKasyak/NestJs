@@ -11,7 +11,7 @@ import { VOTES } from "../interfaces/enums";
 export class IdeaService {
   constructor(
     @InjectRepository(IdeaEntity) private readonly ideaRepository: Repository<IdeaEntity>,
-    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
   ) {}
 
   private async getIdea(id: string) {

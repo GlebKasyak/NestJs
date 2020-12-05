@@ -11,7 +11,7 @@ export class CommentService {
   constructor(
     @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
     @InjectRepository(IdeaEntity) private readonly ideaRepository: Repository<IdeaEntity>,
-    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
   ) {}
 
   async showByIdea(ideaId: string, page = 1, limit = 5) {
@@ -52,7 +52,7 @@ export class CommentService {
   async destroy(commentId: string, userId: string) {
     const comment = await this.commentRepository.findOne(
       { id: commentId },
-      { relations: ["author", "idea"] },
+      { relations: ["author", "idea"] }
     );
     if (comment.author.id !== userId) {
       throw new HttpException("You do not own this comment", HttpStatus.UNAUTHORIZED);

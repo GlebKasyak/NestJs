@@ -24,7 +24,7 @@ export class CommentEntity {
 
   @ManyToOne(
     () => IdeaEntity,
-    idea => idea.comments,
+    idea => idea.comments
   )
   idea: IdeaEntity;
 }

@@ -15,7 +15,7 @@ export class UserController {
   showAllUsers(
     @User("id") user: RequestUserType,
     @Query("page") page: number,
-    @Query("limit") limit: number,
+    @Query("limit") limit: number
   ) {
     return this.userService.showAll(page, limit);
   }

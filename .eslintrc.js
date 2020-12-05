@@ -242,10 +242,7 @@ module.exports = {
         "after": true
       }
     ],
-    "semi": [
-      2,
-      "always"
-    ],
+    "semi": 2,
     "keyword-spacing": 2,
     "space-before-blocks": 2,
     "space-before-function-paren": [

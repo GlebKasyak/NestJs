@@ -15,9 +15,9 @@ export class LoggingInterceptor implements NestInterceptor {
         tap(() =>
           Logger.log(
             `method: ${request.method}, url: ${request.url} - After: ${Date.now() - now}ms`,
-            context.getClass().name,
-          ),
-        ),
+            context.getClass().name
+          )
+        )
       );
   }
 }
