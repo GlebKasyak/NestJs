@@ -18,27 +18,27 @@ import { IdeaEntity } from "../idea/idea.entity";
 
 @Entity("user")
 export class UserEntity {
-  @PrimaryGeneratedColumn("uuid") readonly id: string
+  @PrimaryGeneratedColumn("uuid") readonly id: string;
 
-  @CreateDateColumn() readonly created: Date
+  @CreateDateColumn() readonly created: Date;
 
-  @UpdateDateColumn() readonly updated: Date
+  @UpdateDateColumn() readonly updated: Date;
 
   @Column({ type: "text", unique: true })
-  username: string
+  username: string;
 
   @Column({ type: "text", select: false })
-  password: string
+  password: string;
 
   @OneToMany(
     () => IdeaEntity,
     idea => idea.author,
   )
-  ideas: Array<IdeaEntity>
+  ideas: Array<IdeaEntity>;
 
   @ManyToMany(() => IdeaEntity, { cascade: true })
   @JoinTable()
-  bookmarks: Array<IdeaEntity>
+  bookmarks: Array<IdeaEntity>;
 
   @BeforeInsert()
   async hashPassword() {

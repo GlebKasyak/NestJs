@@ -12,19 +12,19 @@ import { IdeaEntity } from "../idea/idea.entity";
 
 @Entity("comment")
 export class CommentEntity {
-  @PrimaryGeneratedColumn("uuid") readonly id: string
+  @PrimaryGeneratedColumn("uuid") readonly id: string;
 
-  @CreateDateColumn() readonly created: Date
+  @CreateDateColumn() readonly created: Date;
 
-  @Column("text") comment: string
+  @Column("text") comment: string;
 
   @ManyToOne(() => UserEntity)
   @JoinTable()
-  author: UserEntity
+  author: UserEntity;
 
   @ManyToOne(
     () => IdeaEntity,
     idea => idea.comments,
   )
-  idea: IdeaEntity
+  idea: IdeaEntity;
 }

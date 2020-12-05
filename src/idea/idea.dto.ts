@@ -2,8 +2,8 @@ import { IsString } from "class-validator";
 
 export class IdeaDTO {
   @IsString()
-  idea: string
+  idea: string;
 
   @IsString()
-  description: string
+  description: string;
 }

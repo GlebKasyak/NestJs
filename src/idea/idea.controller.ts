@@ -22,7 +22,7 @@ import { LogDataOptionsType } from "../user/user.dto";
 @Controller("api/idea")
 export class IdeaController {
   constructor(private readonly ideaService: IdeaService) {}
-  private logger = new Logger("IdeaController")
+  private logger = new Logger("IdeaController");
 
   private logData(options: LogDataOptionsType) {
     options.userId && this.logger.log(`USER ${JSON.stringify(options.userId)}`);
