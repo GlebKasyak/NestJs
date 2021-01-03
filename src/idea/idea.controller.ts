@@ -1,5 +1,6 @@
 import {
   Controller,
+  Request,
   Get,
   Post,
   Put,
@@ -7,18 +8,27 @@ import {
   Body,
   Param,
   UsePipes,
-  UseGuards,
   Logger,
-  Query
+  Query,
+  DefaultValuePipe,
+  HttpStatus
 } from "@nestjs/common";
+import { Request as IRequest } from "express";
+import { ApiTags } from "@nestjs/swagger";
 
 import { IdeaService } from "./idea.service";
-import { IdeaDTO } from "./idea.dto";
+import { CreateIdeaDTO, FullIdeaDTO } from "./idea.dto";
+import { LogDataOptionsType, UserDTO } from "../user/user.dto";
 import { ValidationPipe } from "../shared/validation.pipe";
-import { AuthGuard } from "../shared/auth.guard";
-import { User } from "../user/user.decorator";
-import { LogDataOptionsType } from "../user/user.dto";
+import User from "../user/user.decorator";
+import {
+  RequiredPaginationQueries,
+  Auth,
+  CommonResponseSwaggerDecorator
+} from "../shared/common.decorators";
+import { PARAMS } from "../interfaces/enums";
 
+@ApiTags("idea")
 @Controller("api/idea")
 export class IdeaController {
   constructor(private readonly ideaService: IdeaService) {}
@@ -31,76 +41,151 @@ export class IdeaController {
   }
 
   @Get()
-  @UseGuards(new AuthGuard())
-  showAllIdeas(@Query("page") page: number, @Query("limit") limit: number) {
+  @Auth()
+  @RequiredPaginationQueries()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Current ideas",
+    dtoType: FullIdeaDTO,
+    resIsArray: true
+  })
+  showAllIdeas(
+    @Query(PARAMS.PAGE, new DefaultValuePipe(1)) page: number,
+    @Query(PARAMS.LIMIT, new DefaultValuePipe(5)) limit: number
+  ) {
     return this.ideaService.showAll(page, limit);
   }
 
   @Get("/newest")
-  @UseGuards(new AuthGuard())
-  showNewestIdeas(@Query("page") page: number, @Query("limit") limit: number) {
+  @Auth()
+  @RequiredPaginationQueries()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Current ideas",
+    dtoType: FullIdeaDTO,
+    resIsArray: true
+  })
+  showNewestIdeas(
+    @Query(PARAMS.PAGE, new DefaultValuePipe(1)) page: number,
+    @Query(PARAMS.LIMIT, new DefaultValuePipe(5)) limit: number
+  ) {
     return this.ideaService.showAll(page, limit, true);
   }
 
   @Post()
-  @UseGuards(new AuthGuard())
+  @Auth()
   @UsePipes(new ValidationPipe())
-  createIdea(@User("id") userId: string, @Body() data: IdeaDTO) {
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Created idea",
+    resStatus: HttpStatus.CREATED,
+    dtoType: FullIdeaDTO,
+    errorMessage: "Can't create idea"
+  })
+  createIdea(
+    @User(PARAMS.ID) userId: string,
+    @Body() data: CreateIdeaDTO,
+    @Request() req: IRequest
+  ) {
     this.logData({ userId, data });
-    return this.ideaService.create(data, userId);
+    return this.ideaService.create(data, req.user);
   }
 
   @Get(":id")
-  @UseGuards(new AuthGuard())
-  readIdea(@Param("id") ideaId: string) {
+  @Auth()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Retrieved idea by ID successfully",
+    dtoType: FullIdeaDTO,
+    errorMessage: "Idea not found"
+  })
+  readIdea(@Param(PARAMS.ID) ideaId: string) {
     this.logData({ ideaId });
     return this.ideaService.read(ideaId);
   }
 
   @Put(":id")
-  @UseGuards(new AuthGuard())
+  @Auth()
   @UsePipes(new ValidationPipe())
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Updated idea by ID successfully",
+    dtoType: FullIdeaDTO,
+    errorMessage: "Idea not found",
+    resErrStatus: HttpStatus.UNAUTHORIZED,
+    secondErrMessage: "Incorrect user"
+  })
   updateIdea(
-    @User("id") userId: string,
-    @Param("id") ideaId: string,
-    @Body() data: Partial<IdeaDTO>
+    @User(PARAMS.ID) userId: string,
+    @Param(PARAMS.ID) ideaId: string,
+    @Body() data: CreateIdeaDTO
   ) {
     this.logData({ userId, data, ideaId });
     return this.ideaService.update(ideaId, data, userId);
   }
 
   @Delete(":id")
-  @UseGuards(new AuthGuard())
-  destroyIdea(@User("id") userId: string, @Param("id") ideaId: string) {
+  @Auth()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Deleted idea by ID successfully",
+    dtoType: FullIdeaDTO,
+    errorMessage: "Idea not found",
+    resErrStatus: HttpStatus.UNAUTHORIZED,
+    secondErrMessage: "Incorrect user"
+  })
+  destroyIdea(@User(PARAMS.ID) userId: string, @Param(PARAMS.ID) ideaId: string) {
     this.logData({ userId, ideaId });
     return this.ideaService.destroy(ideaId, userId);
   }
 
   @Get(":id/bookmark")
-  @UseGuards(new AuthGuard())
-  bookmarkIdea(@User("id") userId: string, @Param("id") ideaId: string) {
+  @Auth()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Idea by ID was bookmarked",
+    dtoType: UserDTO,
+    errorMessage: "Idea already bookmarked"
+  })
+  bookmarkIdea(@User(PARAMS.ID) userId: string, @Param(PARAMS.ID) ideaId: string) {
     this.logData({ userId, ideaId });
     return this.ideaService.bookmark(ideaId, userId);
   }
 
   @Delete(":id/bookmark")
-  @UseGuards(new AuthGuard())
-  unbookmarkIdea(@User("id") userId: string, @Param("id") ideaId: string) {
+  @Auth()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Idea by ID was unbookmarked",
+    dtoType: UserDTO,
+    errorMessage: "This bookmarked not exists"
+  })
+  unbookmarkIdea(@User(PARAMS.ID) userId: string, @Param(PARAMS.ID) ideaId: string) {
     this.logData({ userId, ideaId });
     return this.ideaService.unbookmark(ideaId, userId);
   }
 
   @Get(":id/upvote")
-  @UseGuards(new AuthGuard())
-  upvoteIdea(@User("id") userId: string, @Param("id") ideaId: string) {
+  @Auth()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Upvote idea by ID successfully",
+    dtoType: FullIdeaDTO,
+    errorMessage: "Idea not found"
+  })
+  upvoteIdea(
+    @User(PARAMS.ID) userId: string,
+    @Param(PARAMS.ID) ideaId: string,
+    @Request() req: IRequest
+  ) {
     this.logData({ userId, ideaId });
-    return this.ideaService.upvote(ideaId, userId);
+    return this.ideaService.upvote(ideaId, req.user);
   }
 
   @Delete(":id/downvote")
-  @UseGuards(new AuthGuard())
-  downvoteIdea(@User("id") userId: string, @Param("id") ideaId: string) {
+  @Auth()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Downvote idea by ID successfully",
+    dtoType: FullIdeaDTO,
+    errorMessage: "Idea not found"
+  })
+  downvoteIdea(
+    @User(PARAMS.ID) userId: string,
+    @Param(PARAMS.ID) ideaId: string,
+    @Request() req: IRequest
+  ) {
     this.logData({ userId, ideaId });
-    return this.ideaService.downvote(ideaId, userId);
+    return this.ideaService.downvote(ideaId, req.user);
   }
 }

@@ -1,4 +1,4 @@
-import { RequestUserType } from "../user/user.dto";
+import { UserEntity } from "../user/user.entity";
 export {};
 
 declare global {
@@ -7,8 +7,8 @@ declare global {
   }
 
   namespace Express {
-    interface Request {
-      user: RequestUserType;
+    export interface Request {
+      user: UserEntity;
     }
   }
 }

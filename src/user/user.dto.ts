@@ -1,26 +1,54 @@
 import { IsString, IsNotEmpty } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-import { IdeaDTO } from "../idea/idea.dto";
-import { IdeaEntity } from "../idea/idea.entity";
+import { CreateIdeaDTO } from "../idea/idea.dto";
+import { IdeaDto } from "../shared/common.dto";
 
-export class UserDTO {
+export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   username: string;
 
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   password: string;
 }
 
-export type ResponseObjectType = {
+export class UserDTO {
+  @ApiProperty({ description: "uuid" })
   readonly id: string;
-  readonly created: Date;
+
+  @ApiProperty()
   username: string;
+
+  @ApiProperty()
+  readonly created: Date;
+
+  @ApiPropertyOptional()
   token?: string;
-  ideas: Array<IdeaEntity>;
-  bookmarks: Array<IdeaEntity>;
-};
+
+  @ApiPropertyOptional({ type: [IdeaDto] })
+  ideas?: Array<IdeaDto>;
+
+  @ApiPropertyOptional({ type: [IdeaDto] })
+  bookmarks?: Array<IdeaDto>;
+}
+
+export class AuthorDTO {
+  @ApiProperty({ description: "uuid" })
+  readonly id: string;
+
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  readonly created: Date;
+
+  @ApiProperty()
+  readonly updated: Date;
+}
 
 export type RequestUserType = {
   readonly id: string;
@@ -30,6 +58,6 @@ export type RequestUserType = {
 
 export type LogDataOptionsType = {
   userId?: string;
-  data?: IdeaDTO | Partial<IdeaDTO>;
+  data?: CreateIdeaDTO | Partial<CreateIdeaDTO>;
   ideaId?: string;
 };

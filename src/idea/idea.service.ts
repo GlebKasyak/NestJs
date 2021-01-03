@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 
 import { IdeaEntity } from "./idea.entity";
 import { UserEntity } from "../user/user.entity";
-import { IdeaDTO } from "./idea.dto";
+import { CreateIdeaDTO } from "./idea.dto";
 import { VOTES } from "../interfaces/enums";
 
 @Injectable()
@@ -25,7 +25,7 @@ export class IdeaService {
       .getOne();
 
     if (!idea) {
-      throw new HttpException("Idea not found", HttpStatus.NOT_FOUND);
+      throw new HttpException("Idea not found", HttpStatus.BAD_REQUEST);
     }
 
     return idea;
@@ -37,7 +37,6 @@ export class IdeaService {
     }
   }
 
-  // eslint-disable-next-line complexity
   private async vote(idea: IdeaEntity, user: UserEntity, vote: VOTES) {
     const opposite = vote === VOTES.UP ? VOTES.DOWN : VOTES.UP;
 
@@ -60,8 +59,8 @@ export class IdeaService {
     return idea;
   }
 
-  async showAll(page = 1, limit = 25, newest?: boolean) {
-    return await this.ideaRepository
+  async showAll(page: number, limit: number, newest?: boolean) {
+    const ideas = await this.ideaRepository
       .createQueryBuilder("idea")
       .leftJoinAndSelect("idea.author", "author")
       .loadRelationCountAndMap("idea.upvotes", "idea.upvotes")
@@ -71,11 +70,18 @@ export class IdeaService {
       .skip(limit * (page - 1))
       .orderBy(newest && { "idea.created": "DESC" })
       .getMany();
+
+    if (ideas && !ideas.length) {
+      throw new HttpException("Can't create idea", HttpStatus.BAD_REQUEST);
+    }
+    return ideas;
   }
 
-  async create(data: IdeaDTO, userId: string) {
-    const user = await this.userRepository.findOne({ id: userId });
-    const idea = await this.ideaRepository.create({ ...data, author: user });
+  async create(data: CreateIdeaDTO, author: UserEntity) {
+    const idea = await this.ideaRepository.create({ ...data, author });
+    if (!idea) {
+      throw new HttpException("Can't create idea", HttpStatus.BAD_REQUEST);
+    }
 
     await this.ideaRepository.save(idea);
     return { ...idea, author: idea.author.toResponseObject(false) };
@@ -85,7 +91,7 @@ export class IdeaService {
     return await this.getIdea(id);
   }
 
-  async update(id: string, data: Partial<IdeaDTO>, userId: string) {
+  async update(id: string, data: Partial<CreateIdeaDTO>, userId: string) {
     const idea = await this.getIdea(id);
 
     this.ensureOwnership(idea, userId);
@@ -104,7 +110,13 @@ export class IdeaService {
     const idea = await this.getIdea(ideaId);
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ["bookmarks"]
+      relations: [
+        "bookmarks",
+        "bookmarks.author",
+        "bookmarks.upvotes",
+        "bookmarks.downvotes",
+        "bookmarks.comments"
+      ]
     });
 
     if (!user.bookmarks.find(bookmark => bookmark.id === idea.id)) {
@@ -135,16 +147,14 @@ export class IdeaService {
     return user.toResponseObject(false);
   }
 
-  async upvote(ideaId: string, userId: string) {
+  async upvote(ideaId: string, user: UserEntity) {
     const idea = await this.getIdea(ideaId);
-    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     return await this.vote(idea, user, VOTES.UP);
   }
 
-  async downvote(ideaId: string, userId: string) {
+  async downvote(ideaId: string, user: UserEntity) {
     const idea = await this.getIdea(ideaId);
-    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     return await this.vote(idea, user, VOTES.DOWN);
   }

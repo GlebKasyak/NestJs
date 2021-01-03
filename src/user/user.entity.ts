@@ -7,16 +7,18 @@ import {
   OneToMany,
   UpdateDateColumn,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  Unique
 } from "typeorm";
 import { hash, compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
 import Config from "../config";
-import { ResponseObjectType } from "./user.dto";
+import { UserDTO } from "./user.dto";
 import { IdeaEntity } from "../idea/idea.entity";
 
 @Entity("user")
+@Unique(["username"])
 export class UserEntity {
   @PrimaryGeneratedColumn("uuid") readonly id: string;
 
@@ -51,7 +53,7 @@ export class UserEntity {
 
   toResponseObject(showToken = true) {
     const { id, created, username, token, ideas, bookmarks } = this;
-    const responseObject: ResponseObjectType = { id, created, username, ideas, bookmarks };
+    const responseObject: UserDTO = { id, created, username, ideas, bookmarks };
 
     if (showToken) {
       responseObject.token = token;

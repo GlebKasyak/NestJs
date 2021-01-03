@@ -1,34 +1,68 @@
-import { Body, Controller, Get, Post, Query, UseGuards, UsePipes } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UsePipes,
+  DefaultValuePipe,
+  HttpStatus
+} from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 
-import { UserDTO, RequestUserType } from "./user.dto";
+import { CreateUserDTO, RequestUserType } from "./user.dto";
 import { ValidationPipe } from "../shared/validation.pipe";
-import { AuthGuard } from "../shared/auth.guard";
 import { UserService } from "./user.service";
-import { User } from "./user.decorator";
+import User from "./user.decorator";
+import {
+  RequiredPaginationQueries,
+  Auth,
+  CommonResponseSwaggerDecorator
+} from "../shared/common.decorators";
+import { UserDTO } from "./user.dto";
 
+@ApiTags("user")
 @Controller("api/user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get("all")
-  @UseGuards(new AuthGuard())
+  @Auth()
+  @RequiredPaginationQueries()
+  @CommonResponseSwaggerDecorator({
+    resMessage: "Current users",
+    dtoType: UserDTO,
+    resIsArray: true,
+    errorMessage: "Users not found"
+  })
   showAllUsers(
     @User("id") user: RequestUserType,
-    @Query("page") page: number,
-    @Query("limit") limit: number
+    @Query("page", new DefaultValuePipe(1)) page: number,
+    @Query("limit", new DefaultValuePipe(5)) limit: number
   ) {
     return this.userService.showAll(page, limit);
   }
 
   @Post("login")
   @UsePipes(new ValidationPipe())
-  login(@Body() data: UserDTO) {
+  @CommonResponseSwaggerDecorator({
+    resMessage: "You are logged in",
+    dtoType: UserDTO,
+    errorMessage: "Invalid username/password"
+  })
+  login(@Body() data: CreateUserDTO) {
     return this.userService.login(data);
   }
 
   @Post("register")
   @UsePipes(new ValidationPipe())
-  register(@Body() data: UserDTO) {
+  @CommonResponseSwaggerDecorator({
+    resMessage: "You are logged in",
+    resStatus: HttpStatus.CREATED,
+    dtoType: UserDTO,
+    errorMessage: "Can not create user"
+  })
+  register(@Body() data: CreateUserDTO) {
     return this.userService.register(data);
   }
 }

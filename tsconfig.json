@@ -9,7 +9,18 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true
-  }
+    "baseUrl": "./src",
+    "incremental": true,
+    "typeRoots": [
+      "./src/interfaces",
+      "./node_modules/@types"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node-modules",
+    "**/*.spec.ts"
+  ]
 }
