@@ -11,11 +11,11 @@ export class UserService {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
   ) {}
 
-  async showAll(page: number, limit: number) {
+  async showAll(limit: number, page: number) {
     const users = await this.userRepository.find({
       relations: ["ideas", "bookmarks"],
-      skip: limit * (page - 1),
-      take: page
+      take: limit,
+      skip: limit * (page - 1)
     });
 
     if (users && !users.length) {
@@ -23,6 +23,17 @@ export class UserService {
     }
 
     return users.map(user => user.toResponseObject(false));
+  }
+
+  async getUser(username: string) {
+    const user = await this.userRepository.findOne({
+      where: { username },
+      relations: ["ideas", "bookmarks"]
+    });
+    if (!user) {
+      throw new HttpException("This user does not found", HttpStatus.BAD_REQUEST);
+    }
+    return user.toResponseObject(false);
   }
 
   async login(data: CreateUserDTO) {

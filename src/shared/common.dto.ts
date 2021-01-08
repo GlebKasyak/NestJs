@@ -1,15 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { IsString, IsNotEmpty, IsDate } from "class-validator";
 
 export class IdeaDto {
-  @ApiProperty({ description: "uuid" })
+  @IsNotEmpty()
+  @IsString()
   readonly id: string;
 
-  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   idea: string;
 
-  @ApiProperty()
+  @IsString()
   description?: string;
 
-  @ApiProperty()
+  @IsNotEmpty()
+  @IsDate()
   readonly created: Date;
 }

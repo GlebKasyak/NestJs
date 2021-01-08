@@ -9,6 +9,7 @@ import { Request } from "express";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { verify } from "jsonwebtoken";
+import { GqlExecutionContext } from "@nestjs/graphql";
 
 import Config from "../config";
 import { RequestUserType } from "../user/user.dto";
@@ -20,14 +21,7 @@ export class AuthGuard implements CanActivate {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
   ) {}
 
-  async canActivate(context: ExecutionContext) {
-    const request = context.switchToHttp().getRequest<Request>();
-
-    const header = request.headers.authorization;
-    if (!header) {
-      throw new HttpException("Empty Authorization header", HttpStatus.UNAUTHORIZED);
-    }
-
+  private async validateToken(header: string) {
     const isBearerHeader = header.split(" ")[0] === "Bearer";
     if (!isBearerHeader) {
       throw new HttpException("Invalid Authorization token", HttpStatus.UNAUTHORIZED);
@@ -45,10 +39,29 @@ export class AuthGuard implements CanActivate {
         throw new Error("There is no such users");
       }
 
-      request.user = user;
-      return true;
+      return user;
     } catch (err) {
       throw new HttpException(`Token error: ${err.message}`, HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  async canActivate(context: ExecutionContext) {
+    // for rest
+    let request = context.switchToHttp().getRequest<Request>();
+    let header;
+    if (request) {
+      header = request.headers.authorization;
+    } else {
+      // for graphql
+      request = GqlExecutionContext.create(context).getContext();
+      header = request.headers.authorization;
+    }
+
+    if (!header) {
+      throw new HttpException("Empty Authorization header", HttpStatus.UNAUTHORIZED);
+    }
+
+    request.user = await this.validateToken(header);
+    return true;
   }
 }

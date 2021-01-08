@@ -74,6 +74,7 @@ export class IdeaService {
     if (ideas && !ideas.length) {
       throw new HttpException("Can't create idea", HttpStatus.BAD_REQUEST);
     }
+
     return ideas;
   }
 

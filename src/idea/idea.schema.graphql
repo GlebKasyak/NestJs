@@ -1,0 +1,28 @@
+type Idea {
+    id: ID!
+    updated: String!
+    created: String!
+    idea: String!
+    description: String!
+    author: User
+    upvotes: Int!
+    downvotes: Int!
+    comments(page: Int = 1, limit: Int = 5): [Comment!]
+}
+
+type Query {
+    ideas(page: Int = 1, limit: Int = 5, newest: Boolean): [Idea!]
+    idea(id: ID!): Idea
+}
+
+type Mutation {
+    createIdea(idea: String!, description: String!): Idea
+    updateIdea(idea: String!, description: String!, ideaId: String!): Idea
+    destroyIdea(ideaId: String!): Idea
+    bookmarkIdea(ideaId: String!): User
+    unbookmarkIdea(ideaId: String!): User
+    upvoteIdea(ideaId: String!): Idea
+    downvoteIdea(ideaId: String!): Idea
+}
+
+

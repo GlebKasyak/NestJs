@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty } from "class-validator";
-import { ApiProperty, getSchemaPath } from "@nestjs/swagger";
+import { IsString, IsNotEmpty, IsObject, IsArray, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
 import { CommentDTO } from "../comment/comment.dto";
 import { AuthorDTO } from "../user/user.dto";
@@ -8,29 +8,29 @@ import { IdeaDto } from "../shared/common.dto";
 export class CreateIdeaDTO {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty()
   idea: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty()
   description: string;
 }
 
 export class FullIdeaDTO extends IdeaDto {
-  @ApiProperty()
+  @IsNotEmpty()
+  @IsObject()
+  @ValidateNested({ each: true })
+  @Type(() => AuthorDTO)
   author: AuthorDTO;
 
-  @ApiProperty({ type: [CommentDTO] })
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CommentDTO)
   comments: Array<CommentDTO>;
 
-  @ApiProperty({
-    oneOf: [{ type: "number" }, { type: "array", items: { $ref: getSchemaPath(AuthorDTO) } }]
-  })
+  @IsNotEmpty()
   upvotes: number | Array<AuthorDTO>;
 
-  @ApiProperty({
-    oneOf: [{ type: "number" }, { type: "array", items: { $ref: getSchemaPath(AuthorDTO) } }]
-  })
+  @IsNotEmpty()
   downvotes: number | Array<AuthorDTO>;
 }
