@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsString, IsNotEmpty, IsDate, IsArray, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
 import { CreateIdeaDTO } from "../idea/idea.dto";
 import { IdeaDto } from "../shared/common.dto";
@@ -7,46 +7,55 @@ import { IdeaDto } from "../shared/common.dto";
 export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   username: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
   password: string;
 }
 
 export class UserDTO {
-  @ApiProperty({ description: "uuid" })
+  @IsString()
+  @IsNotEmpty()
   readonly id: string;
 
-  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   username: string;
 
-  @ApiProperty()
+  @IsDate()
+  @IsNotEmpty()
   readonly created: Date;
 
-  @ApiPropertyOptional()
+  @IsString()
   token?: string;
 
-  @ApiPropertyOptional({ type: [IdeaDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => IdeaDto)
   ideas?: Array<IdeaDto>;
 
-  @ApiPropertyOptional({ type: [IdeaDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => IdeaDto)
   bookmarks?: Array<IdeaDto>;
 }
 
 export class AuthorDTO {
-  @ApiProperty({ description: "uuid" })
+  @IsString()
+  @IsNotEmpty()
   readonly id: string;
 
-  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   username: string;
 
-  @ApiProperty()
+  @IsDate()
+  @IsNotEmpty()
   readonly created: Date;
 
-  @ApiProperty()
+  @IsDate()
+  @IsNotEmpty()
   readonly updated: Date;
 }
 

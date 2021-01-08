@@ -1,0 +1,26 @@
+type User {
+    id: ID!
+    username: String!
+    created: String!
+    bookmarks: [Idea!]
+    ideas: [Idea!]
+    comments(page: Int = 1, limit: Int = 5): [Comment!]
+}
+
+type Auth {
+    id: ID!
+    created: String!
+    username: String!
+    token: String!
+}
+
+type Query {
+    users(page: Int = 1, limit: Int = 5): [User!]
+    user(username: String!): User
+    whoami: User
+}
+
+type Mutation {
+    login(username: String!, password: String!): Auth
+    register(username: String!, password: String!): Auth
+}

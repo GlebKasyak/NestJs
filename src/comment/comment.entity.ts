@@ -12,7 +12,7 @@ import { IdeaEntity } from "../idea/idea.entity";
 
 @Entity("comment")
 export class CommentEntity {
-  @PrimaryGeneratedColumn("uuid") readonly id: string;
+  @PrimaryGeneratedColumn("uuid") id: string;
 
   @CreateDateColumn() readonly created: Date;
 

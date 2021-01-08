@@ -16,32 +16,21 @@ export class CommentService {
   ) {}
 
   async showByIdea(ideaId: string, page: number, limit: number) {
-    const comments = await this.commentRepository.find({
+    return await this.commentRepository.find({
       where: { idea: ideaId },
       relations: ["author"],
-      take: page,
+      take: limit,
       skip: limit * (page - 1)
     });
-
-    if (comments && !comments.length) {
-      throw new HttpException("This idea hasn't any comments", HttpStatus.BAD_REQUEST);
-    }
-
-    return comments;
   }
 
   async showByUser(userId: string, page: number, limit: number) {
-    const comments = await this.commentRepository.find({
+    return await this.commentRepository.find({
       where: { author: userId },
       relations: ["author"],
-      take: page,
+      take: limit,
       skip: limit * (page - 1)
     });
-    if (comments && !comments.length) {
-      throw new HttpException("This idea hasn't any comments", HttpStatus.BAD_REQUEST);
-    }
-
-    return comments;
   }
 
   async show(commentId: string) {
@@ -86,6 +75,8 @@ export class CommentService {
     }
 
     await this.commentRepository.remove(comment);
+
+    comment.id = commentId;
     return comment;
   }
 }
